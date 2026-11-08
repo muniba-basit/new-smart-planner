@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskNest — Smart Daily Planner</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar" aria-label="Navigation Sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <svg width="32" height="32" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="logo-svg">
+                    <rect width="60" height="60" rx="12" fill="#F5F0EB"/>
+                    <path d="M 12 42 Q 30 56 48 42" stroke="#A38A75" stroke-width="2.8" stroke-linecap="round"/>
+                    <path d="M 16 35 Q 30 48 44 35" stroke="#C4AA95" stroke-width="2.2" stroke-linecap="round"/>
+                    <path d="M 21 29 Q 30 40 39 29" stroke="#D8C8B8" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M 12 42 Q 8 33 13 23" stroke="#A38A75" stroke-width="2.2" stroke-linecap="round"/>
+                    <path d="M 48 42 Q 52 33 47 23" stroke="#A38A75" stroke-width="2.2" stroke-linecap="round"/>
+                    <ellipse cx="22" cy="26" rx="6" ry="5" fill="#FDFBF9" stroke="#C4AA95" stroke-width="1.2"/>
+                    <ellipse cx="30" cy="22" rx="6" ry="5" fill="#FDFBF9" stroke="#A38A75" stroke-width="1.4"/>
+                    <ellipse cx="38" cy="26" rx="6" ry="5" fill="#FDFBF9" stroke="#C4AA95" stroke-width="1.2"/>
+                    <path d="M 27 22 L 29 24 L 33 20" stroke="#A38A75" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M 18 45 Q 14 51 11 56" stroke="#C4AA95" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M 42 45 Q 46 51 49 56" stroke="#C4AA95" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="logo-text">
+                    <span class="logo-task">Task</span><span class="logo-nest">Nest</span>
+                </span>
+            </div>
+            <button class="sidebar-close" id="sidebar-close" aria-label="Close sidebar">✕</button>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+            <button class="nav-item active" data-view="tasks" aria-current="page">
+                <span class="nav-icon">☰</span><span>Tasks</span>
+            </button>
+            <button class="nav-item" data-view="calendar">
+                <span class="nav-icon">◫</span><span>Calendar</span>
+            </button>
+            <button class="nav-item" data-view="analytics">
+                <span class="nav-icon">◈</span><span>Analytics</span>
+            </button>
+            <button class="nav-item" data-view="timeblock">
+                <span class="nav-icon">◷</span><span>Time Blocks</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-categories">
+            <p class="sidebar-section-title">Categories</p>
+            <button class="cat-filter active" data-cat="all">
+                <span class="cat-dot" style="background:#A38A75"></span>All Tasks
+                <span class="cat-count" id="cnt-all">0</span>
+            </button>
+            <button class="cat-filter" data-cat="General">
+                <span class="cat-dot" style="background:#8FAFC5"></span>General
+                <span class="cat-count" id="cnt-General">0</span>
+            </button>
+            <button class="cat-filter" data-cat="Work">
+                <span class="cat-dot" style="background:#7FB3A8"></span>Work
+                <span class="cat-count" id="cnt-Work">0</span>
+            </button>
+            <button class="cat-filter" data-cat="Personal">
+                <span class="cat-dot" style="background:#C4A882"></span>Personal
+                <span class="cat-count" id="cnt-Personal">0</span>
+            </button>
+            <button class="cat-filter" data-cat="Health">
+                <span class="cat-dot" style="background:#A8C4A0"></span>Health
+                <span class="cat-count" id="cnt-Health">0</span>
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <button id="theme-btn" class="theme-toggle-btn">
+                <span id="theme-icon">🌙</span>
+                <span id="theme-label">Dark Mode</span>
+            </button>
+            <div class="sidebar-streak">
+                <span>🔥</span>
+                <strong id="sidebar-streak-val">0</strong>
+                <span>day streak</span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ===== APP WRAPPER ===== -->
+    <div class="app-wrapper">
+
+        <header class="topbar">
+            <button class="hamburger" id="hamburger-btn" aria-label="Toggle sidebar">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="topbar-center">
+                <h1>The Smart Planner</h1>
+                <span id="topbar-date"></span>
+            </div>
+        </header>
+
+        <main>
+
+            <!-- TASKS VIEW -->
+            <section class="view active" id="view-tasks">
+                <div class="add-task-card">
+                    <form id="todo-form" autocomplete="off">
+                        <div class="form-row">
+                            <input type="text" id="todo-input" placeholder="What needs to be done?" aria-label="New task name">
+                            <select id="todo-category" aria-label="Category">
+                                <option value="General">General</option>
+                                <option value="Work">Work</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Health">Health</option>
+                            </select>
+                            <select id="todo-priority" aria-label="Priority">
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="low">Low</option>
+                            </select>
+                            <button type="submit" id="add-btn">+ Add Task</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="pending">Pending</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                    </div>
+                    <select id="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="priority">By Priority</option>
+                        <option value="category">By Category</option>
+                    </select>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-pill"><span id="stat-total">0</span> Total</div>
+                    <div class="stat-pill green"><span id="stat-done">0</span> Done</div>
+                    <div class="stat-pill blue"><span id="stat-pending-count">0</span> Pending</div>
+                    <div class="stat-pill gold"><span id="stat-rate">0%</span> Rate</div>
+                </div>
+
+                <ul id="todo-list" aria-live="polite"></ul>
+
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">✦</div>
+                    <p>No tasks yet — add one above!</p>
+                </div>
+            </section>
+
+            <!-- CALENDAR VIEW -->
+            <section class="view" id="view-calendar">
+                <div class="calendar-header">
+                    <button class="cal-nav-btn" id="cal-prev">‹</button>
+                    <h2 id="cal-month-title"></h2>
+                    <button class="cal-nav-btn" id="cal-next">›</button>
+                </div>
+                <div class="cal-weekdays">
+                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+
+                <div class="cal-panel" id="cal-panel">
+                    <div class="cal-panel-head">
+                        <h3 id="cal-panel-title">Select a date</h3>
+                        <button id="cal-panel-close">✕</button>
+                    </div>
+                    <ul id="cal-task-list"></ul>
+                    <form id="cal-add-form" autocomplete="off">
+                        <input type="text" id="cal-task-input" placeholder="Add task for this day...">
+                        <select id="cal-cat">
+                            <option value="General">General</option>
+                            <option value="Work">Work</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Health">Health</option>
+                        </select>
+                        <button type="submit">Add</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ANALYTICS VIEW -->
+            <section class="view" id="view-analytics">
+                <div class="analytics-grid">
+                    <div class="analytics-card span2">
+                        <h3>Completion Rate</h3>
+                        <div class="big-num" id="big-rate">0%</div>
+                        <div class="progress-track"><div class="progress-bar" id="rate-bar"></div></div>
+                        <p class="muted-text">Tasks completed vs total</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Active Streak</h3>
+                        <div class="big-num gold" id="analytics-streak">0</div>
+                        <p class="muted-text">days in a row 🔥</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Category Split</h3>
+                        <div class="chart-box"><canvas id="categoryChart"></canvas></div>
+                    </div>
+                    <div class="analytics-card span2">
+                        <h3>Task Overview</h3>
+                        <div class="chart-box"><canvas id="productivityChart"></canvas></div>
+                    </div>
+                    <div class="analytics-card span2">
+                        <h3>Daily Burn-down</h3>
+                        <div class="chart-box tall"><canvas id="burndownChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TIME BLOCKING VIEW -->
+            <section class="view" id="view-timeblock">
+                <div class="tb-header">
+                    <h2>Time Blocking</h2>
+                    <p class="muted-text">Drag pending tasks from the tray onto a time slot</p>
+                </div>
+                <div class="tray-card">
+                    <p class="tray-label">📋 Unscheduled Tasks</p>
+                    <div id="tray-items" class="tray-items"></div>
+                </div>
+                <div class="time-grid" id="time-grid"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
