@@ -1,23 +1,63 @@
-import { createContext, useState } from 'react'
+import { createContext, useState, useEffect } from 'react'
+import * as tasksApi from '../api/tasks'
 
-// Sample tasks for now — replaced with real data fetched from server.js
-// once API wiring happens in a later session. More will be added to
-// `value` then too (addTask, toggleTask, deleteTask).
-const sampleTasks = [
-  { id: 1, text: 'Finish Physics past paper', category: 'Work', priority: 'high', completed: false },
-  { id: 2, text: 'Revise Chemistry Ch. 4', category: 'Personal', priority: 'medium', completed: false },
-  { id: 3, text: 'Morning run', category: 'Health', priority: 'low', completed: true },
-]
-
-// Holds app-wide task state so Sidebar, StatsRow, TaskList (and later
-// Calendar/Analytics/TimeBlock) can all read it without App.jsx having to
-// pass it down as a prop to each one individually.
 export const TasksContext = createContext(null)
 
 export function TasksProvider({ children }) {
-  const [tasks] = useState(sampleTasks)
+  const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [categoryFilter, setCategoryFilter] = useState('all') // 'all' | 'General' | 'Work' | ...
 
-  const value = { tasks }
+
+  // Load tasks from the backend once on mount
+  useEffect(() => {
+    tasksApi
+      .getTasks()
+      .then(setTasks)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Each action: call the API first, then update local state if it succeeded
+ async function addTask(data) {
+  setError(null)
+  try {
+    const created = await tasksApi.createTask(data)
+    setTasks((prev) => [created, ...prev]) // backend orders newest first
+    return true
+  } catch (err) {
+    setError(err.message)
+    return false
+  }
+}
+
+  async function toggleTask(id) {
+    setError(null)
+
+    const task = tasks.find((t) => t.id === id)
+    if (!task) return
+    try {
+      await tasksApi.updateTask(id, { completed: !task.completed })
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      )
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  async function deleteTask(id) {
+    setError(null)
+    try {
+      await tasksApi.deleteTask(id)
+      setTasks((prev) => prev.filter((t) => t.id !== id))
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const value = { tasks, loading, error, addTask, toggleTask, deleteTask, categoryFilter, setCategoryFilter }
 
   return <TasksContext.Provider value={value}>{children}</TasksContext.Provider>
 }

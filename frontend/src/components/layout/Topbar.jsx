@@ -1,4 +1,4 @@
-function Topbar() {
+function Topbar({ onMenuClick }) {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -8,7 +8,7 @@ function Topbar() {
 
   return (
     <header className="topbar">
-      <button className="hamburger" id="hamburger-btn" aria-label="Toggle sidebar">
+      <button className="hamburger" onClick={onMenuClick} aria-label="Open menu">
         <span></span><span></span><span></span>
       </button>
       <div className="topbar-center">

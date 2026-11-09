@@ -1,17 +1,23 @@
-function FilterBar() {
+const FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'completed', label: 'Completed' },
+]
+
+function FilterBar({ filter, onFilterChange }) {
   return (
     <div className="filter-bar">
       <div className="filter-group">
-        <button className="filter-btn active" data-filter="all">All</button>
-        <button className="filter-btn" data-filter="pending">Pending</button>
-        <button className="filter-btn" data-filter="completed">Completed</button>
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            className={`filter-btn${filter === f.value ? ' active' : ''}`}
+            onClick={() => onFilterChange(f.value)}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
-      <select id="sort-select">
-        <option value="newest">Newest First</option>
-        <option value="oldest">Oldest First</option>
-        <option value="priority">By Priority</option>
-        <option value="category">By Category</option>
-      </select>
     </div>
   )
 }
